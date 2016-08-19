@@ -1,26 +1,28 @@
-# arduino_random_gen_hardware
+# Arduino_random_gen_hardware
 Random hardware generator using only an arduino and a floating wire
 
+# Summary
+Pairs of analog reads over a floating pin are performed (discarding values next to two endpoints,0 and 1023). The two readings are compared bit-to-bit, with a xor operation: bits which don't change across two reads are discarded, otherwise the first bit is kept  (Von Neumann procedure for extracting random bits). Due to this procedure, the output stream of random bits has not a fixed rate, but is related to how much often there is a variation over the floating pin. For instance, I've noticed an higher output rate when my notebook (which feeds the arduino) is connected to the electricity grid, instead of be powered only by battery.
 
-# Material:
--Arduino Uno(I didn't tested other products)
--USB cable (connect Arduino to PC)
--PC
--one floating wire, connected to an analog pin
+I don't assure any sort of true randomnsess. Is mandatory to make some consideration about statistical independence inside a series of reads. I've performed some statistical tests over the output.
 
-Summary;
-Pairs of analog reads over a floating pin are performed (discarding values next to two endpoints,0 and 1023). The two readings are compared bit-to-bit, with a xor operation: bits which don't change across two reads are discarded, otherwise 
-the first bit is kept  (Von Neumann procedure for extracting random bits). Due to this procedure, the output stream of random bits has not a fixed rate, but is related to how much often there is a variation over the floating pin. For instance, I've noticed an higher output rate when my notebook (which feeds the arduino) is connected to the electricity grid, instead of be powered only by battery.
+# Material
+1. Arduino Uno (I didn't tested other products)
+2. USB cable (connect Arduino to PC)
+3. PC
+5. one floating wire, connected to an analog pin
 
-Is possible to improve the speed by setting the flag fastADC, which increase the analog read's speed.
+# Performance
 
-I don't assure any sort of true randomnsess. I've attached some statistical test performed over the output.
+Are available two flags, *fastADC* and *outputASCII*
+* fastADC: it performs a faster read from analogRead, by changing the prescaler
+* outputASCII: when set to 1, the Arduino produce a series of '0' and '1' ASCII characters. Otherwise, a pure binary stream is emitted.
 
-From a superficial benchmark, performed with fastADC set, I've got an output rate of 5320 random bits per second.
+With fastADC, my Arduino UNO produces about 9190bit/s with outputASCII cleared. Otherwise, with outputASCII are produced only 5320 bit/s of random values. 
 
 # Results
-Look inside the "performance" folder, there you can find a random sample produced with my arduino UNO.
-There are also results of statistical test,Ent and DieHard.
+Look inside the "performance" folder, there you can find a random sample produced with my arduino UNO, with both *fastADC* and *outputASCII* set to true.
+There are also results of statistical test, *Ent* and *DieHard*.
 
 Below the result of Ent
 

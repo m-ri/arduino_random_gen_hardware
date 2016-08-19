@@ -2,7 +2,8 @@
 const int analogPin = 4;
 long millisec,contat;
 const bool fastADC=true;//http://forum.arduino.cc/index.php?topic=6549.0
-const bool printPerformances=false;//Every 10Kbits,I print the time
+const bool printPerformances=true;//Every 10Kbits,I print the time
+const bool outputASCII=true;//true->output with '0' '1' ASCII characters,otherwise pure binary oupput
 
  // defines for setting and clearing register bits
 #ifndef cbi
@@ -56,11 +57,19 @@ void loop() {
     }
     //if(xo){Serial.print(xo);Serial.print(" ");Serial.println(val1&15);contat++;}
     while(xo>0){//I print bits which differ across two reads
-      if(xo&1){Serial.print(val1&1);/* /writeBitToBuffer(val1&1);*/ contat++;}
+      if(xo&1){
+        if(outputASCII){
+          Serial.print(val1&1);
+        }else{
+          writeBitToBuffer(val1&1);
+        }
+        contat++;
+       }
       xo>>=1;
       val1>>=1;
     }
-   // eventuallySendBuffer();
+    
+   if(!outputASCII){ eventuallySendBuffer();}
    if(printPerformances){
       if(contat>=10000){
         Serial.println("");
@@ -78,23 +87,25 @@ void loop() {
   //}
 }
 
-/*const int lenBuffer=16;
-byte bufferSend[lenBuffer];
+
+
+const int lenBuffer=32;
+byte bufferSend[lenBuffer+2];
 int bufferIndex=0;
-void writeBitToBuffer(byte _bit){
+void writeBitToBuffer(char _bit){
+  _bit&=1;
   int offsBit=bufferIndex&7;//I get the bit position inside the byte
-  int offsByte=bufferIndex>>3;//I get the byte
+  int offsByte=bufferIndex>>3;//I get the n° of the byte
   bitWrite(bufferSend[offsByte],offsBit,_bit);
   bufferIndex++;
 }
 void eventuallySendBuffer(){
-  const int threeshold=(lenBuffer-4)*8;
-  if((bufferIndex>=threeshold && ((bufferIndex&7)==0))/*||(bufferIndex>=lenBuffer*8)* /){
-    //Serial.write(bufferSend,bufferIndex>>3);
-    Serial.print("aaaaaaaaaaaaaaaa");
+  const int threeshold=(lenBuffer-2)*8;
+  if((bufferIndex>=threeshold && ((bufferIndex&7)==0))||(bufferIndex>=lenBuffer*8)){
+    Serial.write(bufferSend,bufferIndex>>3);//I send the buffer.if there are more than lenBuffer*8 bits,I simply discard addiitonal bits
     bufferIndex=0;
   }
-}*/
+}
 
 
 
